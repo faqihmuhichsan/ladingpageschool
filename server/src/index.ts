@@ -14,9 +14,20 @@ const PORT = parseInt(process.env.PORT || "3000", 10);
 // ===== MIDDLEWARE =====
 
 // CORS — allow frontend to access API
+const allowedOrigins = (process.env.FRONTEND_URL || "http://localhost:5500")
+    .split(",")
+    .map((o) => o.trim());
+
 app.use(
     cors({
-        origin: process.env.FRONTEND_URL || "http://localhost:5500",
+        origin: (origin, callback) => {
+            // Allow requests with no origin (mobile apps, curl, etc)
+            if (!origin) return callback(null, true);
+            if (allowedOrigins.includes("*") || allowedOrigins.includes(origin)) {
+                return callback(null, true);
+            }
+            callback(new Error("Not allowed by CORS"));
+        },
         credentials: true,
     })
 );
@@ -57,9 +68,10 @@ app.use(
     }
 );
 
-// ===== START SERVER =====
-app.listen(PORT, () => {
-    console.log(`
+// ===== START SERVER (only in non-serverless mode) =====
+if (!process.env.VERCEL) {
+    app.listen(PORT, "0.0.0.0", () => {
+        console.log(`
   ╔══════════════════════════════════════════╗
   ║   PKBM Bintang Literasi — API Server    ║
   ║                                          ║
@@ -69,6 +81,7 @@ app.listen(PORT, () => {
   ║   📚 API:  /api/*                        ║
   ╚══════════════════════════════════════════╝
   `);
-});
+    });
+}
 
 export default app;

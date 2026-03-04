@@ -1,14 +1,20 @@
 // ===== DOM READY =====
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     initNavbar();
     initHamburger();
     initHeroParticles();
     initScrollReveal();
+    await loadSettingsFromAPI(); // Load dynamic stats BEFORE counter animation
     initCounterAnimation();
     initTestimoni();
     initContactForm();
     initBackToTop();
     initSmoothScroll();
+    loadProgramsFromAPI();
+    loadKeunggulanFromAPI();
+    loadGalleryFromAPI();
+    loadAnnouncementsFromAPI();
+    loadEventsFromAPI();
 });
 
 // ===== NAVBAR SCROLL =====
@@ -109,7 +115,9 @@ function animateCounter(element, target, suffix) {
 }
 
 // ===== TESTIMONI (API) =====
-const API_BASE = 'http://localhost:3000';
+const API_BASE = window.location.hostname === 'localhost'
+    ? 'http://localhost:3000'
+    : window.location.origin;
 
 function initTestimoni() {
     loadTestimonials();
@@ -333,4 +341,202 @@ function initSmoothScroll() {
             }
         });
     });
+}
+
+// ===== LOAD SETTINGS FROM API (Stats) =====
+async function loadSettingsFromAPI() {
+    try {
+        const res = await fetch(`${API_BASE}/api/settings`);
+        if (!res.ok) return;
+        const settings = await res.json();
+
+        // Map setting keys to stat labels
+        const statMapping = {
+            'total_students': 'Siswa Aktif',
+            'total_teachers': 'Tenaga Pendidik',
+            'years_established': 'Tahun Berdiri',
+            'graduation_rate': '% Kelulusan',
+        };
+
+        const statItems = document.querySelectorAll('.stat-item');
+        statItems.forEach(item => {
+            const label = item.querySelector('.stat-label').textContent.trim();
+            // Find matching setting key
+            for (const [key, matchLabel] of Object.entries(statMapping)) {
+                if (label === matchLabel && settings[key]) {
+                    const numEl = item.querySelector('.stat-number');
+                    const newValue = parseInt(settings[key].value) || 0;
+                    numEl.setAttribute('data-target', newValue);
+                }
+            }
+        });
+    } catch (err) {
+        console.log('Using default stats (API unavailable)');
+    }
+}
+
+// ===== LOAD PROGRAMS FROM API =====
+async function loadProgramsFromAPI() {
+    const grid = document.getElementById('programGrid');
+    if (!grid) return;
+
+    try {
+        const res = await fetch(`${API_BASE}/api/programs`);
+        if (!res.ok) return;
+        const programs = await res.json();
+
+        const levelClasses = { tk: 'level-tk', sd: 'level-sd', smp: 'level-smp', sma: 'level-sma' };
+
+        grid.innerHTML = programs.map(p => `
+            <div class="program-card reveal">
+                <div class="program-card-image">
+                    <img src="${escapeHtml(p.imageUrl || '/images/hero.png')}" alt="${escapeHtml(p.title)}">
+                    <div class="program-card-level ${levelClasses[p.level] || ''}">${escapeHtml(p.levelLabel)}</div>
+                </div>
+                <div class="program-card-content">
+                    <h3>${escapeHtml(p.title)}</h3>
+                    <p>${escapeHtml(p.description)}</p>
+                    <ul class="program-card-features">
+                        ${(p.features || []).map(f => `<li>${escapeHtml(f)}</li>`).join('')}
+                    </ul>
+                    <a href="#kontak" class="program-card-link">Info Selengkapnya →</a>
+                </div>
+            </div>
+        `).join('');
+
+        // Re-observe for scroll reveal
+        initScrollReveal();
+    } catch (err) {
+        console.log('Using fallback programs');
+    }
+}
+
+// ===== LOAD KEUNGGULAN FROM API =====
+async function loadKeunggulanFromAPI() {
+    const grid = document.getElementById('keunggulanGrid');
+    if (!grid) return;
+
+    try {
+        const res = await fetch(`${API_BASE}/api/advantages`);
+        if (!res.ok) return;
+        const advantages = await res.json();
+
+        grid.innerHTML = advantages.map(a => `
+            <div class="keunggulan-card reveal">
+                <div class="keunggulan-icon">${a.icon || '⭐'}</div>
+                <h3>${escapeHtml(a.title)}</h3>
+                <p>${escapeHtml(a.description)}</p>
+            </div>
+        `).join('');
+
+        initScrollReveal();
+    } catch (err) {
+        console.log('Using fallback advantages');
+    }
+}
+
+// ===== LOAD GALLERY FROM API =====
+async function loadGalleryFromAPI() {
+    const grid = document.getElementById('galeriGrid');
+    if (!grid) return;
+
+    try {
+        const res = await fetch(`${API_BASE}/api/gallery`);
+        if (!res.ok) return;
+        const items = await res.json();
+
+        grid.innerHTML = items.map(g => `
+            <div class="galeri-item">
+                <img src="${escapeHtml(g.imageUrl || '/images/hero.png')}" alt="${escapeHtml(g.title)}">
+                <div class="galeri-overlay"><span>${escapeHtml(g.title)}</span></div>
+            </div>
+        `).join('');
+
+        initScrollReveal();
+    } catch (err) {
+        console.log('Using fallback gallery');
+    }
+}
+
+// ===== LOAD ANNOUNCEMENTS FROM API =====
+async function loadAnnouncementsFromAPI() {
+    const grid = document.getElementById('pengumumanGrid');
+    if (!grid) return;
+
+    try {
+        const res = await fetch(`${API_BASE}/api/announcements`);
+        if (!res.ok) return;
+        const announcements = await res.json();
+
+        if (announcements.length === 0) {
+            grid.innerHTML = '<div class="pengumuman-empty"><p>Belum ada pengumuman saat ini.</p></div>';
+            return;
+        }
+
+        const priorityEmoji = { normal: '📋', penting: '⚠️', urgent: '🚨' };
+        const catColors = { umum: '#3b82f6', akademik: '#8b5cf6', acara: '#f59e0b', penting: '#ef4444' };
+
+        grid.innerHTML = announcements.slice(0, 6).map(a => `
+            <div class="pengumuman-card">
+                <div class="pengumuman-card-priority priority-${escapeHtml(a.priority)}">
+                    ${priorityEmoji[a.priority] || '📋'}
+                </div>
+                <div class="pengumuman-card-content">
+                    <div class="pengumuman-card-meta">
+                        <span class="pengumuman-category" style="color:${catColors[a.category] || '#3b82f6'}">${escapeHtml(a.category)}</span>
+                        <span class="pengumuman-date">${getTimeAgo(a.createdAt)}</span>
+                    </div>
+                    <h3>${escapeHtml(a.title)}</h3>
+                    <p>${escapeHtml(a.content.length > 150 ? a.content.substring(0, 150) + '...' : a.content)}</p>
+                </div>
+            </div>
+        `).join('');
+
+        initScrollReveal();
+    } catch (err) {
+        console.log('Using fallback announcements');
+    }
+}
+
+// ===== LOAD EVENTS FROM API =====
+async function loadEventsFromAPI() {
+    const grid = document.getElementById('kalenderGrid');
+    if (!grid) return;
+
+    try {
+        const res = await fetch(`${API_BASE}/api/events`);
+        if (!res.ok) return;
+        const events = await res.json();
+
+        if (events.length === 0) {
+            grid.innerHTML = '<div class="pengumuman-empty"><p>Belum ada acara mendatang.</p></div>';
+            return;
+        }
+
+        const catEmoji = { umum: '📌', akademik: '📖', ujian: '📝', libur: '🏖️', kegiatan: '🎉' };
+
+        grid.innerHTML = events.slice(0, 6).map(e => {
+            const d = new Date(e.eventDate);
+            const month = d.toLocaleDateString('id-ID', { month: 'short' }).toUpperCase();
+            const day = d.getDate();
+            return `
+                <div class="kalender-card">
+                    <div class="kalender-card-date">
+                        <span class="kalender-month">${month}</span>
+                        <span class="kalender-day">${day}</span>
+                    </div>
+                    <div class="kalender-card-content">
+                        <span class="kalender-category">${catEmoji[e.category] || '📌'} ${escapeHtml(e.category)}</span>
+                        <h3>${escapeHtml(e.title)}</h3>
+                        ${e.eventTime ? `<p>🕐 ${escapeHtml(e.eventTime)}</p>` : ''}
+                        ${e.location ? `<p>📍 ${escapeHtml(e.location)}</p>` : ''}
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        initScrollReveal();
+    } catch (err) {
+        console.log('Using fallback events');
+    }
 }

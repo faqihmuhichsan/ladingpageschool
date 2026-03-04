@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Siswa — PKBM Bintang Literasi</title>
+    <link rel="stylesheet" href="student.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- ===== LOGIN / REGISTER PAGE ===== -->
+    <div id="authPage" class="auth-page">
+        <div class="auth-card">
+            <div class="auth-logo">
+                <span class="logo-icon">🎓</span>
+                <h1>PKBM Bintang Literasi</h1>
+                <p>Portal Siswa</p>
+            </div>
+
+            <!-- Tab Switcher -->
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-tab="login">Masuk</button>
+                <button class="auth-tab" data-tab="register">Daftar Baru</button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="loginForm" class="auth-form active">
+                <div class="form-group">
+                    <label for="loginEmail">Email</label>
+                    <input type="email" id="loginEmail" placeholder="email@contoh.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn-primary" id="btnLogin">🔐 Masuk</button>
+                <p id="loginError" class="form-error"></p>
+            </form>
+
+            <!-- Register Form -->
+            <form id="registerForm" class="auth-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="regName">Nama Lengkap</label>
+                        <input type="text" id="regName" placeholder="Nama lengkap" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="regPhone">No. Telepon</label>
+                        <input type="tel" id="regPhone" placeholder="08xxxxxxxxxx" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="regEmail">Email</label>
+                    <input type="email" id="regEmail" placeholder="email@contoh.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="regPassword">Password</label>
+                    <input type="password" id="regPassword" placeholder="Min. 8 karakter" required minlength="8">
+                </div>
+                <div class="form-group">
+                    <label for="regProgram">Program yang Diminati</label>
+                    <select id="regProgram" required>
+                        <option value="">-- Pilih Program --</option>
+                        <option value="TK / PAUD">TK / PAUD</option>
+                        <option value="SD / Paket A">SD / Paket A</option>
+                        <option value="SMP / Paket B">SMP / Paket B</option>
+                        <option value="SMA / Paket C">SMA / Paket C</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="regMessage">Pesan Tambahan (Opsional)</label>
+                    <textarea id="regMessage" rows="2" placeholder="Tulis pesan jika ada..."></textarea>
+                </div>
+                <button type="submit" class="btn-primary" id="btnRegister">📝 Daftar Sekarang</button>
+                <p id="registerError" class="form-error"></p>
+                <p id="registerSuccess" class="form-success"></p>
+            </form>
+
+            <a href="/" class="back-link">← Kembali ke Website</a>
+        </div>
+    </div>
+
+    <!-- ===== STUDENT DASHBOARD ===== -->
+    <div id="studentDashboard" class="student-dashboard" style="display:none;">
+        <!-- Sidebar -->
+        <aside class="student-sidebar">
+            <div class="sidebar-header">
+                <span class="sidebar-logo">🎓</span>
+                <div>
+                    <h2>Portal Siswa</h2>
+                    <span class="sidebar-badge">PKBM BL</span>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="sidebar-item active" data-section="home">
+                    <span class="sidebar-icon">🏠</span> Dashboard
+                </a>
+                <a href="#" class="sidebar-item" data-section="announcements">
+                    <span class="sidebar-icon">📢</span> Pengumuman
+                </a>
+                <a href="#" class="sidebar-item" data-section="events">
+                    <span class="sidebar-icon">📅</span> Jadwal & Acara
+                </a>
+                <a href="#" class="sidebar-item" data-section="profile">
+                    <span class="sidebar-icon">👤</span> Profil Saya
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="/" class="sidebar-link">🌐 Website</a>
+                <button id="btnStudentLogout" class="btn-logout-sm">🚪 Logout</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="student-main">
+            <header class="student-topbar">
+                <h1 id="sectionTitle">Dashboard</h1>
+                <div class="topbar-right">
+                    <span id="studentName" class="student-name-badge">Siswa</span>
+                </div>
+            </header>
+
+            <!-- HOME Section -->
+            <section id="sec-home" class="student-section active">
+                <!-- Welcome Banner -->
+                <div class="welcome-banner">
+                    <div class="welcome-text">
+                        <h1>Selamat Datang, <span id="welcomeName">Siswa</span>! 👋</h1>
+                        <p>Pantau status pendaftaran dan informasi terbaru di sini.</p>
+                    </div>
+                    <div class="welcome-illustration">🎒📚</div>
+                </div>
+
+                <!-- Status & Account Grid -->
+                <div class="dashboard-grid">
+                    <div class="status-card">
+                        <h3>📋 Status Pendaftaran</h3>
+                        <div id="statusContent">
+                            <div class="status-loading">⏳ Memuat data...</div>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <h3>👤 Informasi Akun</h3>
+                        <div id="accountInfo">
+                            <div class="status-loading">⏳ Memuat data...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Registration Details -->
+                <div class="detail-card" id="registrationDetails" style="display:none;">
+                    <h3>📝 Detail Pendaftaran</h3>
+                    <div id="detailContent"></div>
+                </div>
+
+                <!-- Quick Announcements -->
+                <div class="quick-section">
+                    <h3>📢 Pengumuman Terbaru</h3>
+                    <div id="quickAnnouncements" class="quick-list"></div>
+                </div>
+            </section>
+
+            <!-- ANNOUNCEMENTS Section -->
+            <section id="sec-announcements" class="student-section">
+                <div class="ann-list" id="announcementsList"></div>
+            </section>
+
+            <!-- EVENTS Section -->
+            <section id="sec-events" class="student-section">
+                <div class="events-list" id="eventsList"></div>
+            </section>
+
+            <!-- PROFILE Section -->
+            <section id="sec-profile" class="student-section">
+                <div class="profile-card">
+                    <h3>✏️ Edit Profil</h3>
+                    <form id="profileForm">
+                        <div class="form-group">
+                            <label for="profileName">Nama Lengkap</label>
+                            <input type="text" id="profileName" placeholder="Nama lengkap">
+                        </div>
+                        <div class="form-group">
+                            <label for="profileEmail">Email</label>
+                            <input type="email" id="profileEmail" placeholder="email@contoh.com">
+                        </div>
+                        <button type="submit" class="btn-save">💾 Simpan Perubahan</button>
+                        <p id="profileMsg" class="form-success"></p>
+                    </form>
+                </div>
+                <div class="profile-card">
+                    <h3>🔒 Ubah Password</h3>
+                    <form id="passwordForm">
+                        <div class="form-group">
+                            <label for="newPassword">Password Baru</label>
+                            <input type="password" id="newPassword" placeholder="Min. 8 karakter" minlength="8">
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmPassword">Konfirmasi Password</label>
+                            <input type="password" id="confirmPassword" placeholder="Ketik ulang password">
+                        </div>
+                        <button type="submit" class="btn-save">🔑 Ubah Password</button>
+                        <p id="passwordMsg" class="form-success"></p>
+                    </form>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="student.js"></script>
+</body>
+
+</html>
