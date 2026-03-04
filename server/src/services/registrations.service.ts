@@ -19,6 +19,16 @@ export class RegistrationsService {
         return result[0] || null;
     }
 
+    static async getByEmail(email: string) {
+        const result = await db
+            .select()
+            .from(registrations)
+            .where(eq(registrations.email, email))
+            .orderBy(desc(registrations.createdAt))
+            .limit(1);
+        return result[0] || null;
+    }
+
     static async create(data: {
         fullName: string;
         email: string;

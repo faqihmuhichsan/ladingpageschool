@@ -7,6 +7,9 @@ import contactsRoutes from "./contacts.routes.js";
 import galleryRoutes from "./gallery.routes.js";
 import advantagesRoutes from "./advantages.routes.js";
 import settingsRoutes from "./settings.routes.js";
+import announcementsRoutes from "./announcements.routes.js";
+import eventsRoutes from "./events.routes.js";
+import usersRoutes from "./users.routes.js";
 
 export function mountRoutes(app: Express) {
     app.use(authRoutes);
@@ -17,4 +20,8 @@ export function mountRoutes(app: Express) {
     app.use(galleryRoutes);
     app.use(advantagesRoutes);
     app.use(settingsRoutes);
+    app.use(announcementsRoutes);
+    app.use(eventsRoutes);
+    app.use(usersRoutes);
 }
+
