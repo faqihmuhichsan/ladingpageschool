@@ -21,7 +21,7 @@ function hashPassword(password: string): Promise<string> {
 }
 
 async function createAdmin() {
-    console.log("🔑 Creating admin account...\n");
+    console.log("🔑 Creating super admin account...\n");
 
     // Check if user already exists
     const existing = await db
@@ -33,7 +33,7 @@ async function createAdmin() {
     let userId: string;
 
     if (existing.length > 0) {
-        console.log("  ⚠️  User already exists, updating role to admin...");
+        console.log("  ⚠️  User already exists, updating role to superadmin...");
         userId = existing[0].id;
     } else {
         // Create user
@@ -44,7 +44,7 @@ async function createAdmin() {
             name: ADMIN_NAME,
             email: ADMIN_EMAIL,
             emailVerified: true,
-            role: "admin",
+            role: "superadmin",
         }).returning();
 
         userId = newUser.id;
@@ -60,19 +60,19 @@ async function createAdmin() {
         console.log("  ✅ User & account created");
     }
 
-    // Ensure role is admin
+    // Ensure role is superadmin
     await db
         .update(user)
-        .set({ role: "admin" })
+        .set({ role: "superadmin" })
         .where(eq(user.email, ADMIN_EMAIL));
 
-    console.log("  ✅ Admin role set\n");
+    console.log("  ✅ Super Admin role set\n");
     console.log("╔══════════════════════════════════════════╗");
-    console.log("║        🎉 Admin Account Created!         ║");
+    console.log("║     🎉 Super Admin Account Created!     ║");
     console.log("╠══════════════════════════════════════════╣");
     console.log(`║  Email:    ${ADMIN_EMAIL.padEnd(28)} ║`);
     console.log(`║  Password: ${ADMIN_PASSWORD.padEnd(28)} ║`);
-    console.log(`║  Role:     admin                         ║`);
+    console.log(`║  Role:     superadmin                    ║`);
     console.log("╠══════════════════════════════════════════╣");
     console.log("║  ⚠️  Ganti password setelah login!       ║");
     console.log("╚══════════════════════════════════════════╝");
@@ -84,3 +84,4 @@ createAdmin().catch((err) => {
     console.error("❌ Failed:", err);
     process.exit(1);
 });
+

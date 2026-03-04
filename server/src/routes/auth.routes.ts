@@ -33,7 +33,7 @@ router.post("/api/admin/login", async (req, res) => {
         }
 
         // Check admin role
-        if (foundUser.role !== "admin") {
+        if (!["admin", "superadmin"].includes(foundUser.role)) {
             res.status(403).json({ message: "Akun ini bukan admin" });
             return;
         }
